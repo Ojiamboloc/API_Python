@@ -48,12 +48,17 @@ def get_posts(db:Session=Depends(get_db)):
     posts=db.query(models.Post).all()
     return {"data": posts}
 @app.post("/posts",status_code=status.HTTP_201_CREATED)
-def create_posts(post:Post):
-    cursor.execute("""INSERT INTO posts (title,content) VALUES (%s,%s) RETURNING * """,
-                  (post.title,post.content))
-    new_post=cursor.fetchone()
-    conn.commit()
+def create_posts(post:Post,db:Session=Depends(get_db)):
+    #cursor.execute("""INSERT INTO posts (title,content) VALUES (%s,%s) RETURNING * """,
+                  #(post.title,post.content))
+    #new_post=cursor.fetchone()
+    #conn.commit()
+    new_post=models.Post(title=post.title,content=post.content,published=post.published)
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
     return{"data":new_post}
+
 @app.get("/posts/{id}")
 def get_post(id:int):
     cursor.execute("""SELECT * FROM posts WHERE id=%s""",(str(id)))
