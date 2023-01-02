@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from random import randrange
 import time
 import psycopg2
-from . import models
+from . import models,schemas
 from . database import engine,get_db
 from sqlalchemy.orm import Session
 from psycopg2.extras import RealDictCursor
@@ -14,10 +14,7 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 
-class Post(BaseModel):
-    title:str
-    content:str
-    published:bool=True
+
 while True:    
     try:
         conn=psycopg2.connect(host='localhost',database='ojiamboloc',user='postgres',password='Ojiamboloc@4',cursor_factory=RealDictCursor)
@@ -48,7 +45,7 @@ def get_posts(db:Session=Depends(get_db)):
     posts=db.query(models.Post).all()
     return {"data": posts}
 @app.post("/posts",status_code=status.HTTP_201_CREATED)
-def create_posts(post:Post,db:Session=Depends(get_db)):
+def create_posts(post:schemas.Post,db:Session=Depends(get_db)):
     #cursor.execute("""INSERT INTO posts (title,content) VALUES (%s,%s) RETURNING * """,
                   #(post.title,post.content))
     #new_post=cursor.fetchone()
@@ -87,7 +84,7 @@ def delete_post(id:int,db:Session=Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)  
   
 @app.put("/posts/{id}",status_code=status.HTTP_404_NOT_FOUND)  
-def update_post(id:int,updated_post:Post,db:Session=Depends(get_db)):
+def update_post(id:int,updated_post:schemas.Post,db:Session=Depends(get_db)):
     #cursor.execute("""UPDATE posts SET title=%s,content=%s WHERE id=%sRETURNING *""",(post.title,post.content,(str(id))))  
     #updated_post=cursor.fetchone()
     #conn.commit()
