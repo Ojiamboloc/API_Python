@@ -35,14 +35,17 @@ def root():
     #0-5:00:00
 @app.get("/sqlalchemy")
 def test_posts(db:Session=Depends(get_db)):
-    post=db.query(models.Post).all()
-    return{"post":post}
+    posts=db.query(models.Post).all()
+    
+    return{"data":posts}
 
 @app.get("/posts")
-def get_posts():
-    cursor.execute("""SELECT * FROM posts""")
-    posts=cursor.fetchall()
+def get_posts(db:Session=Depends(get_db)):
+   # cursor.execute("""SELECT * FROM posts""")
+   # posts=cursor.fetchall()
     #print(posts)
+    
+    posts=db.query(models.Post).all()
     return {"data": posts}
 @app.post("/posts",status_code=status.HTTP_201_CREATED)
 def create_posts(post:Post):
